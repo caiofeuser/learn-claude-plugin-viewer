@@ -1,0 +1,26 @@
+{
+  "description": "Point the lesson viewer at this session's transcript ($PPID is Claude Code, so other sessions are ignored), and send questions to the viewer instead of the terminal.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -m 2 -H 'Content-Type: application/json' --data-binary @- \"http://127.0.0.1:${LEARN_PORT:-4747}/hook?pid=$PPID\" >/dev/null 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'AskUserQuestion is disabled in learn sessions: its questions cannot be shown or answered in the lesson viewer. Ask the same thing with the learn ask tool (one question per call), or with quiz if it has a right answer.' >&2; exit 2"
+          }
+        ]
+      }
+    ]
+  }
+}

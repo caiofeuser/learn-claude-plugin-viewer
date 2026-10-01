@@ -16,3 +16,6 @@ __pycache__/
 # Runtime state
 .memory/
 *.log
+
+# Lesson artifacts (rendered diagrams land here at runtime)
+viz/

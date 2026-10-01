@@ -1,0 +1,11 @@
+{
+  "name": "learn",
+  "version": "0.1.0",
+  "description": "A teaching system: the teach and visualize skills, researcher and diagram-maker subagents, and a browser lesson viewer with graded quizzes.",
+  "mcpServers": {
+    "learn": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/viewer/server.mjs"]
+    }
+  }
+}

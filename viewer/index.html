@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>learn</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.9/dist/katex.min.css">
+<style>
+  :root {
+    --bg: #fbfaf7; --fg: #1f1f1d; --muted: #6b6a66; --line: #e4e1da; --card: #ffffff; --code: #f2f0ea;
+    --accent: #2f5bd3; --ok: #1f8a4c; --bad: #c2392f; --warn: #a86a00;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151515; --fg: #e8e6e1; --muted: #9a978f; --line: #2e2d2b; --card: #1c1c1b; --code: #242423;
+      --accent: #86a8ff; --ok: #52c585; --bad: #f07167; --warn: #e3a941;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header {
+    position: sticky; top: 0; z-index: 1; display: flex; gap: 8px; align-items: center;
+    padding: 10px 16px; font-size: 14px; color: var(--muted);
+    background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+  }
+  header b { color: var(--fg) }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok) }
+  body.offline .dot { background: var(--warn) }
+  main { max-width: 760px; margin: 0 auto; padding: 28px 16px 45vh }
+  .empty { color: var(--muted); text-align: center; margin-top: 30vh }
+
+  .item { margin: 0 0 28px }
+  .item.user { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px }
+  .who, .tag { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em }
+  .who { color: var(--muted) }
+  .tag { color: var(--accent); margin-bottom: 6px }
+  .item.user .text { white-space: pre-wrap }
+  .item > :first-child, .question > :first-child, .details > :first-child, .explanation > :first-child { margin-top: 0 }
+  .item > :last-child { margin-bottom: 0 }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px }
+
+  h1, h2, h3, h4 { line-height: 1.3; margin: 1.6em 0 .6em }
+  p { margin: .8em 0 }
+  a { color: var(--accent) }
+  code { font: .88em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code); padding: .1em .35em; border-radius: 4px }
+  pre { background: var(--code); padding: 12px 14px; border-radius: 8px; overflow-x: auto }
+  pre code { background: none; padding: 0 }
+  pre.mermaid { background: none; text-align: center }
+  pre.plain { white-space: pre-wrap; font-size: 14px }
+  img { display: block; max-width: min(100%, 600px); height: auto; margin: 1em auto; border-radius: 6px; background: #fff }
+  table { border-collapse: collapse; display: block; overflow-x: auto }
+  th, td { border: 1px solid var(--line); padding: 6px 10px }
+  blockquote { margin: 1em 0; padding-left: 14px; border-left: 3px solid var(--line); color: var(--muted) }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0 }
+
+  .details { color: var(--muted) }
+  .options { display: grid; gap: 8px; margin: 14px 0 }
+  .option {
+    display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left;
+    font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; cursor: pointer;
+  }
+  .option:hover:not(:disabled) { border-color: var(--accent) }
+  .option.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent) }
+  .option:disabled { cursor: default }
+  .num {
+    flex: none; width: 24px; height: 24px; margin-top: 2px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 13px; font-weight: 600; background: var(--code);
+  }
+  .option.selected .num { background: var(--accent); color: var(--bg) }
+  .option .desc { display: block; font-size: 14px; color: var(--muted) }
+  .option.key { border-color: var(--ok) }
+  .option.key .num { background: var(--ok); color: var(--bg) }
+  .option.wrong { border-color: var(--bad) }
+  .option.wrong .num { background: var(--bad); color: var(--bg) }
+  .option.dim { opacity: .55 }
+  textarea {
+    width: 100%; font: inherit; font-size: 15px; color: inherit; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px }
+  .actions button {
+    font: inherit; font-size: 15px; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg); color: inherit;
+  }
+  .actions button.primary { background: var(--accent); border-color: var(--accent); color: var(--bg) }
+  .actions button:disabled { opacity: .5; cursor: default }
+  .hint { margin-left: auto; font-size: 13px; color: var(--muted) }
+  .error { color: var(--bad); font-size: 14px; margin-top: 6px }
+  .verdict { font-weight: 700; margin-top: 4px }
+  .verdict.ok { color: var(--ok) }
+  .verdict.bad { color: var(--bad) }
+  .verdict.idk { color: var(--warn) }
+  .note { font-size: 15px; color: var(--muted); margin-top: 4px }
+  .explanation { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px }
+  .muted { font-size: 14px; color: var(--muted) }
+  .answer-text { font-weight: 600; white-space: pre-wrap; margin-top: 6px }
+</style>
+</head>
+<body>
+<header><span class="dot"></span><b>learn</b><span id="status">connecting…</span></header>
+<main id="log"></main>
+<script type="module">
+  import { marked } from "https://cdn.jsdelivr.net/npm/marked@18.0.14/+esm"
+  import markedKatex from "https://cdn.jsdelivr.net/npm/marked-katex-extension@5.1.13/+esm"
+  import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify@3.4.16/+esm"
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c])
+
+  marked.use(markedKatex({ throwOnError: false, nonStandard: true }))
+  marked.use({ renderer: { code: ({ text, lang }) => (lang === "mermaid" ? `<pre class="mermaid">${esc(text)}</pre>` : false) } })
+  mermaid.initialize({ startOnLoad: false, theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default" })
+
+  // Model output is rendered as HTML, so sanitize it.
+  const md = (s) => DOMPurify.sanitize(marked.parse(String(s ?? "")))
+  const mdInline = (s) => DOMPurify.sanitize(marked.parseInline(String(s ?? "")))
+
+  const log = document.getElementById("log")
+  const status = document.getElementById("status")
+  const nodes = new Map() // item key → element
+  let active = null // newest pending card, answered from the keyboard
+
+  const EMPTY = `<p class="empty">Waiting for the session. Send a message in Claude Code.</p>`
+
+  function upsert(item) {
+    const nearBottom = innerHeight + scrollY >= document.body.scrollHeight - 200
+    const el = renderItem(item)
+    const old = nodes.get(item.key)
+    if (old) old.replaceWith(el)
+    else log.append(el)
+    nodes.set(item.key, el)
+    log.querySelector(".empty")?.remove()
+    mermaid.run({ nodes: el.querySelectorAll("pre.mermaid") }).catch(() => {})
+
+    if (active?.id === item.id && item.status !== "pending") active = null
+    if (item.status === "pending" && !old) el.scrollIntoView({ behavior: "smooth", block: "center" })
+    else if (nearBottom) scrollTo({ top: document.body.scrollHeight })
+    document.title = log.querySelector(".pending") ? "● Waiting for you · learn" : "learn"
+  }
+
+  function renderItem(it) {
+    const el = document.createElement("section")
+    el.className = `item ${it.kind}`
+    if (it.kind === "user") {
+      el.innerHTML = `<div class="who">You</div><div class="text">${esc(it.text)}</div>`
+    } else if (it.kind === "assistant") {
+      el.innerHTML = md(it.text)
+    } else if (it.kind === "replay") {
+      el.classList.add("card")
+      const text = it.text.replace(/^\[(quiz|ask) [\w-]+\]\s*/, "")
+      el.innerHTML = `<div class="tag">${esc(it.tag)}</div>${md(it.question)}<pre class="plain">${esc(text)}</pre>`
+    } else {
+      renderCard(el, it)
+    }
+    return el
+  }
+
+  // A quiz is graded; a question has no right answer.
+  function renderCard(el, it) {
+    const graded = it.kind === "quiz"
+    const options = it.options.map((o) => optionHtml(o, it)).join("")
+    el.classList.add("card")
+    el.classList.toggle("pending", it.status === "pending")
+    el.innerHTML = `
+      <div class="tag">${graded ? "Quiz" : "Question"}${it.multi ? " · select all that apply" : ""}</div>
+      <div class="question">${md(it.question)}</div>
+      ${it.details ? `<div class="details">${md(it.details)}</div>` : ""}
+      ${options ? `<div class="options">${options}</div>` : ""}`
+    if (it.status === "pending") makeAnswerable(el, it)
+    else el.insertAdjacentHTML("beforeend", outcomeHtml(it))
+  }
+
+  function optionHtml(o, it) {
+    const r = it.result
+    let mark = o.index
+    let state = ""
+    if (r && it.kind === "quiz") {
+      const isKey = r.correct.includes(o.index)
+      const isPicked = r.selected.includes(o.index)
+      state = isKey ? "key" : isPicked ? "wrong" : "dim"
+      if (isKey || isPicked) mark = isKey ? "✓" : "✗"
+    } else if (r) {
+      state = r.selected.includes(o.index) ? "selected" : "dim"
+    }
+    const disabled = it.status === "pending" ? "" : "disabled"
+    const desc = o.description ? `<span class="desc">${mdInline(o.description)}</span>` : ""
+    return `<button class="option ${state}" data-index="${o.index}" ${disabled}>
+      <span class="num">${mark}</span><span>${mdInline(o.label)}${desc}</span>
+    </button>`
+  }
+
+  function outcomeHtml(it) {
+    const r = it.result
+    if (!r) return `<div class="muted">Cancelled from the terminal.</div>`
+    if (it.kind === "question") return r.text ? `<div class="answer-text">→ ${esc(r.text)}</div>` : ""
+    const [cls, label] = r.dontKnow ? ["idk", "I don't know"] : r.isCorrect ? ["ok", "Correct"] : ["bad", "Incorrect"]
+    const note = r.note ? `<div class="note">Your note: ${esc(r.note)}</div>` : ""
+    const explanation = r.explanation ? `<div class="explanation">${md(r.explanation)}</div>` : ""
+    return `<div class="verdict ${cls}">${label}</div>${note}${explanation}`
+  }
+
+  function makeAnswerable(el, it) {
+    const graded = it.kind === "quiz"
+    const buttons = [...el.querySelectorAll(".option")]
+    const chosen = new Set()
+
+    const text = document.createElement("textarea")
+    text.rows = graded || it.options.length ? 1 : 3
+    text.placeholder = graded
+      ? "Note (optional): what you're thinking or unsure about"
+      : it.options.length
+        ? "Or write your own answer (optional)"
+        : "Your answer"
+    const bar = document.createElement("div")
+    bar.className = "actions"
+    const keys = it.options.length ? `1–${Math.min(it.options.length, 9)} select · Enter submit` : "⌘Enter submit"
+    bar.innerHTML = `<button class="primary" disabled>Submit</button>
+      ${graded ? "<button>I don't know</button>" : ""}
+      <span class="hint">${keys}</span>`
+    const [submit, idk] = bar.querySelectorAll("button")
+    const error = document.createElement("div")
+    error.className = "error"
+    el.append(text, bar, error)
+
+    // A question can be answered in words alone; a quiz needs a pick.
+    const ready = () => chosen.size > 0 || (!graded && text.value.trim() !== "")
+    const refresh = () => {
+      buttons.forEach((b) => b.classList.toggle("selected", chosen.has(Number(b.dataset.index))))
+      submit.disabled = !ready()
+    }
+    const toggle = (n) => {
+      if (n < 1 || n > it.options.length) return
+      if (it.multi && chosen.has(n)) chosen.delete(n)
+      else {
+        if (!it.multi) chosen.clear()
+        chosen.add(n)
+      }
+      refresh()
+    }
+    const send = async (dontKnow = false) => {
+      if (!dontKnow && !ready()) return
+      submit.disabled = true
+      if (idk) idk.disabled = true
+      error.textContent = ""
+      const reply = graded ? { dontKnow, note: text.value } : { text: text.value }
+      const res = await fetch("/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: it.id, selected: [...chosen], ...reply }),
+      }).catch(() => null)
+      if (!res?.ok) {
+        error.textContent = (await res?.text()) || "Couldn't reach the lesson server."
+        refresh()
+        if (idk) idk.disabled = false
+      }
+    }
+
+    buttons.forEach((b) => (b.onclick = () => toggle(Number(b.dataset.index))))
+    text.oninput = refresh
+    text.onkeydown = (e) => {
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send()
+    }
+    submit.onclick = () => send()
+    if (idk) idk.onclick = () => send(true)
+    active = { id: it.id, toggle, submit: () => send() }
+    if (!it.options.length) setTimeout(() => text.focus())
+  }
+
+  addEventListener("keydown", (e) => {
+    if (!active || e.target.closest("textarea, input") || e.metaKey || e.ctrlKey || e.altKey) return
+    if (/^[1-9]$/.test(e.key)) active.toggle(Number(e.key))
+    else if (e.key === "Enter") active.submit()
+  })
+
+  const events = new EventSource("/events")
+  events.onopen = () => {
+    document.body.classList.remove("offline")
+    status.textContent = "live"
+  }
+  events.onerror = () => {
+    document.body.classList.add("offline")
+    status.textContent = "reconnecting… (is the Claude Code session running?)"
+  }
+  events.onmessage = (e) => {
+    const msg = JSON.parse(e.data)
+    if (msg.op === "reset") {
+      log.innerHTML = EMPTY
+      nodes.clear()
+      active = null
+      msg.items.forEach(upsert)
+      if (!log.querySelector(".pending")) scrollTo({ top: document.body.scrollHeight })
+    } else if (msg.op === "upsert") {
+      upsert(msg.item)
+    }
+  }
+</script>
+</body>
+</html>
